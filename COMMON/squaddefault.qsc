@@ -1,0 +1,606 @@
+AISquad_nSquadState = AISquad_GetState();
+AISquad_nEvent = AISquad_GetEvent();
+if(AISquad_GetSquadType() == AIType_Offensive)
+{
+	if(AISquad_nSquadState == AISquadState_Idle || AISquad_nSquadState == AISquadState_Move || AISquad_nSquadState == AISquadState_Patrol)
+	{
+		if(AISquad_nEvent == AIEVENT_REACTTOSUSPICION)
+		{
+			AISquad_SwitchState(AISquadState_SearchArea, AIVoice_SearchArea);
+		}
+		else
+		{
+			if(AISquad_nEvent == AIEVENT_DONELOOKING)
+			{
+				AISquad_PlaySoundAtReceiversPos(AIVoice_FalseAlarm);
+			}
+			else
+			{
+				if(AISquad_nEvent == AIEVENT_ENEMYDETECTION)
+				{
+					AISquad_SwitchState(AISquadState_Inquire, AIVoice_EnemyDetected);
+				}
+				else
+				{
+					if(AISquad_nEvent == AIEVENT_ENEMYDETECTION_NO_LOF)
+					{
+						AISquad_SwitchState(AISquadState_SearchArea, AIVoice_EnemyDetected);
+					}
+					else
+					{
+						if(AISquad_nEvent == AIEVENT_FRIENDLY_GUNSHOT)
+						{
+							AISquad_PlaySoundAtReceiversPos(AIVoice_GunShotHeard);
+							if(AISquad_GetDistanceToEvent() < 15 || AISquad_nSquadState == AISquadState_Patrol)
+							{
+								AISquad_SwitchState(AISquadState_MoveSearchInDirection, AIVoice_HurryUp);
+							}
+							else
+							{
+								AISquad_ReceiverLookAtEvent();
+							}
+						}
+						else
+						{
+							if(AISquad_nEvent == AIEVENT_FRIENDLYDETECTION || AISquad_nEvent == AIEVENT_FRIENDLY_DYING || AISquad_nEvent == AIEVENT_DEATH_CRY)
+							{
+								AISquad_PlaySoundAtReceiversPos(AIVoice_ManDown);
+								AISquad_TriggerEvent(AIEVENT_DISTRESSCALL, 35);
+								AISquad_SwitchState(AISquadState_Danger);
+								AISquad_TriggerAlarm();
+							}
+							else
+							{
+								if(AISquad_nEvent == AIEVENT_GUNSHOTMISS || AISquad_nEvent == AIEVENT_EXPLOSION)
+								{
+									AISquad_PlaySoundAtReceiversPos(AIVoice_GunShotHeard);
+									AISquad_SwitchState(AISquadState_Danger);
+								}
+								else
+								{
+									if(AISquad_nEvent == AIEVENT_TAKINGDAMAGE || AISquad_nEvent == AIEVENT_GUNSHOT || AISquad_nEvent == AIEVENT_WOUNDED_CRY)
+									{
+										AISquad_PlaySoundAtReceiversPos(AIVoice_SearchArea);
+										AISquad_SwitchState(AISquadState_MoveSearchInDirection);
+									}
+									else
+									{
+										if(AISquad_nEvent == AIEVENT_SEENSOMETHING)
+										{
+											AISquad_PlaySoundAtReceiversPos(AIVoice_EnemySpotted);
+											AISquad_ReceiverLookAtEvent();
+										}
+										else
+										{
+											if(AISquad_nEvent == AIEVENT_DISTRESSCALL)
+											{
+												AISquad_PlaySoundAtReceiversPos(AIVoice_SearchArea);
+												AISquad_SwitchState(AISquadState_SearchArea);
+											}
+											else
+											{
+												if(AISquad_nEvent == AIEVENT_GROUNDIMPACT)
+												{
+													AISquad_PlaySoundAtReceiversPos(AIVoice_WhatsThat);
+													AISquad_ReceiverLookInApproxEventDirection();
+												}
+												else
+												{
+													if(AISquad_nEvent == AIEVENT_WALK || AISquad_nEvent == AIEVENT_HANDLEWEAPON || AISquad_nEvent == AIEVENT_DOOR || AISquad_nEvent == AIEVENT_FENCE || AISquad_nEvent == AIEVENT_LADDER || AISquad_nEvent == AIEVENT_BULLETIMPACT)
+													{
+														AISquad_PlaySoundAtReceiversPos(AIVoice_WhatsThat);
+														if(AISquad_nSquadState == AISquadState_Idle)
+														{
+															AISquad_ReceiverLookAtEvent();
+														}
+														else
+														{
+															if(AISquad_nSquadState == AISquadState_Move || AISquad_nSquadState == AISquadState_Patrol)
+															{
+																AISquad_SwitchState(AISquadState_MoveSearchInDirection);
+															}
+
+														}
+													}
+													else
+													{
+														if(AISquad_nEvent == AIEVENT_ALARMON)
+														{
+															AISquad_SwitchState(AISquadState_Danger);
+														}
+														else
+														{
+															if(AISquad_nEvent == AIEVENT_CAMERAALARMUPDATE)
+															{
+																AISquad_PlaySoundAtReceiversPos(AIVoice_EnemySpotted);
+																AISquad_SwitchState(AISquadState_SearchArea);
+															}
+
+														}
+
+													}
+
+												}
+
+											}
+
+										}
+
+									}
+
+								}
+
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+	}
+	else
+	{
+		if(AISquad_nSquadState == AISquadState_SearchArea || AISquad_nSquadState == AISquadState_MoveSearchInDirection || AISquad_nSquadState == AISquadState_LookSearchInDirection)
+		{
+			if(AISquad_nEvent == AIEVENT_ENEMYDETECTION)
+			{
+				AISquad_PlaySoundAtReceiversPos(AIVoice_Engaging);
+				AISquad_SwitchState(AISquadState_Leapfrog);
+				AISquad_TriggerAlarm();
+				if(Config_GetActiveDifficultyLevel() > 0)
+				{
+					AISquad_ThrowGrenade();
+				}
+			}
+			else
+			{
+				if(AISquad_nEvent == AIEVENT_ENEMYDETECTION_NO_LOF)
+				{
+					AISquad_SwitchState(AISquadState_SearchArea);
+				}
+				else
+				{
+					if(AISquad_nEvent == AIEVENT_DISTRESSCALL)
+					{
+						AISquad_PlaySoundAtReceiversPos(AIVoice_SearchArea);
+						AISquad_SwitchState(AISquadState_SearchArea);
+					}
+					else
+					{
+						if(AISquad_nEvent == AIEVENT_FRIENDLY_GUNSHOT)
+						{
+							AISquad_SwitchState(AISquadState_MoveSearchInDirection, AIVoice_HurryUp);
+						}
+						else
+						{
+							if(AISquad_nEvent == AIEVENT_WALK || AISquad_nEvent == AIEVENT_HANDLEWEAPON || AISquad_nEvent == AIEVENT_DOOR || AISquad_nEvent == AIEVENT_FENCE || AISquad_nEvent == AIEVENT_LADDER || AISquad_nEvent == AIEVENT_GUNSHOT || AISquad_nEvent == AIEVENT_GROUNDIMPACT)
+							{
+								AISquad_SwitchState(AISquadState_MoveSearchInDirection, AIVoice_WhatsThat);
+							}
+							else
+							{
+								if(AISquad_nEvent == AIEVENT_TAKINGDAMAGE || AISquad_nEvent == AIEVENT_WOUNDED_CRY || AISquad_nEvent == AIEVENT_EXPLOSION)
+								{
+									AISquad_PlaySoundAtReceiversPos(AIVoice_TakeCover);
+									AISquad_SwitchState(AISquadState_Danger);
+								}
+								else
+								{
+									if(AISquad_nEvent == AIEVENT_SEENSOMETHING)
+									{
+										AISquad_PlaySoundAtReceiversPos(AIVoice_EnemyFound);
+										AISquad_ReceiverLookAtEvent();
+									}
+									else
+									{
+										if(AISquad_nEvent == AIEVENT_FRIENDLYDETECTION || AISquad_nEvent == AIEVENT_FRIENDLY_DYING || AISquad_nEvent == AIEVENT_DEATH_CRY)
+										{
+											AISquad_PlaySoundAtReceiversPos(AIVoice_RaiseAlarm);
+											AISquad_TriggerAlarm();
+										}
+										else
+										{
+											if(AISquad_nSquadState == AISquadState_MoveSearchInDirection || AISquad_nSquadState == AISquadState_LookSearchInDirection)
+											{
+												if(AISquad_nEvent == AIEVENT_SEARCHOVER)
+												{
+													AISquad_SwitchState(AISquadState_SearchArea);
+												}
+											}
+											else
+											{
+												if(AISquad_nEvent == AIEVENT_CAMERAALARMUPDATE)
+												{
+													AISquad_PlaySoundAtReceiversPos(AIVoice_EnemySpotted);
+													AISquad_SwitchState(AISquadState_SearchArea);
+												}
+
+											}
+
+										}
+
+									}
+
+								}
+
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+		}
+		else
+		{
+			if(AISquad_nSquadState == AISquadState_Leapfrog)
+			{
+				if(AISquad_nEvent == AIEVENT_LOSTSIGHTOFENEMY)
+				{
+					AISquad_PlaySoundAtReceiversPos(AIVoice_SearchArea);
+					AISquad_SwitchState(AISquadState_SearchArea);
+					AISquad_ThrowGrenade();
+				}
+				else
+				{
+					if(!AISquad_ReceiverHasTarget() && (AISquad_nEvent == AIEVENT_TAKINGDAMAGE || AISquad_nEvent == AIEVENT_GUNSHOTMISS || AISquad_nEvent == AIEVENT_GUNSHOT || AISquad_nEvent == AIEVENT_SEENSOMETHING))
+					{
+						AISquad_ReceiverLookAtEvent();
+					}
+
+				}
+			}
+			else
+			{
+				if(AISquad_nSquadState == AISquadState_Danger)
+				{
+					if(AISquad_nEvent == AIEVENT_DANGERSTATETIMEOUT)
+					{
+						AISquad_SwitchState(AISquadState_MoveSearchInDirection, AIVoice_SearchArea);
+					}
+					else
+					{
+						if(AISquad_nEvent == AIEVENT_ENEMYDETECTION)
+						{
+							AISquad_PlaySoundAtReceiversPos(AIVoice_Engaging);
+							AISquad_SwitchState(AISquadState_Leapfrog);
+							AISquad_TriggerAlarm();
+							if(Config_GetActiveDifficultyLevel() > 0)
+							{
+								AISquad_ThrowGrenade();
+							}
+						}
+						else
+						{
+							if(AISquad_nEvent == AIEVENT_ENEMYDETECTION_NO_LOF)
+							{
+								AISquad_SwitchState(AISquadState_SearchArea, AIVoice_SearchArea);
+								AISquad_TriggerAlarm();
+							}
+							else
+							{
+								if(AISquad_nEvent == AIEVENT_WALK || AISquad_nEvent == AIEVENT_HANDLEWEAPON || AISquad_nEvent == AIEVENT_GROUNDIMPACT || AISquad_nEvent == AIEVENT_TAKINGDAMAGE || AISquad_nEvent == AIEVENT_DOOR || AISquad_nEvent == AIEVENT_FENCE || AISquad_nEvent == AIEVENT_LADDER || AISquad_nEvent == AIEVENT_EXPLOSION || AISquad_nEvent == AIEVENT_SEENSOMETHING || AISquad_nEvent == AIEVENT_BULLETIMPACT)
+								{
+									AISquad_PlaySoundAtReceiversPos(AIVoice_WhatsThat);
+									AISquad_ReceiverLookAtEvent();
+								}
+								else
+								{
+									if(AISquad_nEvent == AIEVENT_WOUNDED_CRY || AISquad_nEvent == AIEVENT_EXPLOSION)
+									{
+										AISquad_SwitchState(AISquadState_MoveSearchInDirection, AIVoice_SearchArea);
+									}
+									else
+									{
+										if(AISquad_nEvent == AIEVENT_FRIENDLYDETECTION || AISquad_nEvent == AIEVENT_FRIENDLY_DYING || AISquad_nEvent == AIEVENT_DEATH_CRY)
+										{
+											AISquad_PlaySoundAtReceiversPos(AIVoice_RaiseAlarm);
+											AISquad_TriggerAlarm();
+										}
+										else
+										{
+											if(AISquad_nEvent == AIEVENT_GUNSHOTMISS)
+											{
+												AISquad_PlaySoundAtReceiversPos(AIVoice_GunShotHeard);
+												AISquad_SwitchState(AISquadState_Danger);
+											}
+											else
+											{
+												if(AISquad_nEvent == AIEVENT_TAKINGDAMAGE || AISquad_nEvent == AIEVENT_GUNSHOT || AISquad_nEvent == AIEVENT_WOUNDED_CRY)
+												{
+													AISquad_PlaySoundAtReceiversPos(AIVoice_SearchArea);
+													AISquad_SwitchState(AISquadState_MoveSearchInDirection);
+												}
+
+											}
+
+										}
+
+									}
+
+								}
+
+							}
+
+						}
+
+					}
+				}
+				else
+				{
+					if(AISquad_nSquadState == AISquadState_Inquire)
+					{
+						if(AISquad_nEvent == AIEVENT_ENEMYDETECTION_NO_LOF)
+						{
+							AISquad_SwitchState(AISquadState_SearchArea, AIVoice_SearchArea);
+						}
+						else
+						{
+							if(AISquad_nEvent == AIEVENT_FRIENDLYDETECTION)
+							{
+								AISquad_SwitchState(AISquadState_SearchArea, AIVoice_SearchArea);
+							}
+							else
+							{
+								if(AISquad_nEvent == AIEVENT_LOSTSIGHTOFENEMY)
+								{
+									AISquad_SwitchState(AISquadState_SearchArea, AIVoice_SearchArea);
+									AISquad_TriggerAlarm();
+								}
+								else
+								{
+									if(AISquad_nEvent == AIEVENT_TAKINGDAMAGE || AISquad_nEvent == AIEVENT_FRIENDLYDETECTION || AISquad_nEvent == AIEVENT_FRIENDLY_DYING || AISquad_nEvent == AIEVENT_DEATH_CRY || AISquad_nEvent == AIEVENT_FRIENDLY_GUNSHOT || AISquad_nEvent == AIEVENT_GUNSHOT || AISquad_nEvent == AIEVENT_GUNSHOTMISS || AISquad_nEvent == AIEVENT_WOUNDED_CRY || AISquad_nEvent == AIEVENT_EXPLOSION)
+									{
+										if(AISquad_HasTarget())
+										{
+											AISquad_TriggerAlarm();
+										}
+										else
+										{
+											AISquad_PlaySoundAtReceiversPos(AIVoice_SearchArea);
+										}
+										AISquad_SwitchState(AISquadState_SearchArea);
+										if(Config_GetActiveDifficultyLevel() > 0)
+										{
+											AISquad_ThrowGrenade();
+										}
+									}
+									else
+									{
+										if(AISquad_nEvent == AIEVENT_INQUIRETIMEOUT)
+										{
+											if(AISquad_HasTarget())
+											{
+												AISquad_PlaySoundAtReceiversPos(AIVoice_Engaging);
+												AISquad_SwitchState(AISquadState_Leapfrog);
+												AISquad_TriggerAlarm();
+											}
+											else
+											{
+												AISquad_SwitchState(AISquadState_SearchArea, AIVoice_SearchArea);
+												AISquad_TriggerAlarm();
+											}
+											if(Config_GetActiveDifficultyLevel() > 0)
+											{
+												AISquad_ThrowGrenade();
+											}
+										}
+
+									}
+
+								}
+
+							}
+
+						}
+					}
+
+				}
+
+			}
+
+		}
+
+	}
+}
+else
+{
+	if(AISquad_GetSquadType() == AIType_Defensive)
+	{
+		if(AISquad_nSquadState == AISquadState_Idle || AISquad_nSquadState == AISquadState_Move || AISquad_nSquadState == AISquadState_Patrol)
+		{
+			if(AISquad_nEvent == AIEVENT_REACTTOSUSPICION)
+			{
+				AISquad_SwitchState(AISquadState_Danger, AIVoice_TakeCover);
+			}
+			else
+			{
+				if(AISquad_nEvent == AIEVENT_DONELOOKING)
+				{
+					AISquad_PlaySoundAtReceiversPos(AIVoice_FalseAlarm);
+				}
+				else
+				{
+					if(AISquad_nEvent == AIEVENT_ENEMYDETECTION || AISquad_nEvent == AIEVENT_ENEMYDETECTION_NO_LOF)
+					{
+						AISquad_SwitchState(AISquadState_HoldArea, AIVoice_HoldArea);
+						AISquad_TriggerAlarm();
+					}
+					else
+					{
+						if(AISquad_nEvent == AIEVENT_SEENSOMETHING || AISquad_nEvent == AIEVENT_WALK || AISquad_nEvent == AIEVENT_HANDLEWEAPON)
+						{
+							AISquad_PlaySoundAtReceiversPos(AIVoice_WhatsThat);
+							AISquad_ReceiverLookAtEvent();
+						}
+						else
+						{
+							if(AISquad_nEvent == AIEVENT_DISTRESSCALL)
+							{
+								AISquad_PlaySoundAtReceiversPos(AIVoice_WhatsThat);
+								AISquad_ReceiverLookInApproxEventDirection();
+							}
+							else
+							{
+								if(AISquad_nEvent == AIEVENT_GROUNDIMPACT || AISquad_nEvent == AIEVENT_BULLETIMPACT)
+								{
+									AISquad_PlaySoundAtReceiversPos(AIVoice_WhatsThat);
+									AISquad_SwitchState(AISquadState_Danger);
+								}
+								else
+								{
+									if(AISquad_nEvent == AIEVENT_DOOR || AISquad_nEvent == AIEVENT_FENCE || AISquad_nEvent == AIEVENT_LADDER)
+									{
+										AISquad_PlaySoundAtReceiversPos(AIVoice_WhatsThat);
+										AISquad_ReceiverLookAtEvent();
+									}
+									else
+									{
+										if(AISquad_nEvent == AIEVENT_GUNSHOT || AISquad_nEvent == AIEVENT_FRIENDLY_GUNSHOT || AISquad_nEvent == AIEVENT_WOUNDED_CRY || AISquad_nEvent == AIEVENT_TAKINGDAMAGE || AISquad_nEvent == AIEVENT_GUNSHOTMISS || AISquad_nEvent == AIEVENT_EXPLOSION)
+										{
+											AISquad_SwitchState(AISquadState_Danger, AIVoice_TakeCover);
+										}
+										else
+										{
+											if(AISquad_nEvent == AIEVENT_FRIENDLYDETECTION || AISquad_nEvent == AIEVENT_FRIENDLY_DYING || AISquad_nEvent == AIEVENT_DEATH_CRY)
+											{
+												AISquad_PlaySoundAtReceiversPos(AIVoice_ManDown);
+												AISquad_TriggerEvent(AIEVENT_DISTRESSCALL, 35);
+												AISquad_SwitchState(AISquadState_Danger);
+												AISquad_TriggerAlarm();
+											}
+											else
+											{
+												if(AISquad_nEvent == AIEVENT_ALARMON)
+												{
+													AISquad_SwitchState(AISquadState_Danger);
+												}
+
+											}
+
+										}
+
+									}
+
+								}
+
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+		}
+		else
+		{
+			if(AISquad_nSquadState == AISquadState_HoldArea)
+			{
+				if(!AISquad_ReceiverHasTarget())
+				{
+					if(AISquad_nEvent == AIEVENT_SEENSOMETHING)
+					{
+						AISquad_ReceiverLookAtEvent();
+					}
+					else
+					{
+						if(AISquad_nEvent == AIEVENT_GUNSHOT || AISquad_nEvent == AIEVENT_WOUNDED_CRY || AISquad_nEvent == AIEVENT_TAKINGDAMAGE || AISquad_nEvent == AIEVENT_GUNSHOTMISS || AISquad_nEvent == AIEVENT_BULLETIMPACT || AISquad_nEvent == AIEVENT_EXPLOSION)
+						{
+							AISquad_ReceiverLookInApproxEventDirection();
+						}
+						else
+						{
+							if(AISquad_nEvent == AIEVENT_GROUNDIMPACT || AISquad_nEvent == AIEVENT_WALK || AISquad_nEvent == AIEVENT_HANDLEWEAPON || AISquad_nEvent == AIEVENT_DOOR || AISquad_nEvent == AIEVENT_FENCE || AISquad_nEvent == AIEVENT_LADDER)
+							{
+								AISquad_PlaySoundAtReceiversPos(AIVoice_WhatsThat);
+								AISquad_ReceiverLookAtEvent();
+							}
+
+						}
+
+					}
+				}
+				else
+				{
+					if(AISquad_nEvent == AIEVENT_LOSTSIGHTOFENEMY)
+					{
+						AISquad_SwitchState(AISquadState_Idle);
+						AISquad_ThrowGrenade();
+					}
+					else
+					{
+						if(AISquad_nEvent == AIEVENT_FRIENDLYDETECTION || AISquad_nEvent == AIEVENT_FRIENDLY_DYING || AISquad_nEvent == AIEVENT_DEATH_CRY)
+						{
+							AISquad_PlaySoundAtReceiversPos(AIVoice_TakeCover);
+							AISquad_TriggerAlarm();
+						}
+
+					}
+
+				}
+			}
+			else
+			{
+				if(AISquad_nSquadState == AISquadState_Danger)
+				{
+					if(AISquad_nEvent == AIEVENT_WALK || AISquad_nEvent == AIEVENT_HANDLEWEAPON || AISquad_nEvent == AIEVENT_GROUNDIMPACT || AISquad_nEvent == AIEVENT_TAKINGDAMAGE || AISquad_nEvent == AIEVENT_DOOR || AISquad_nEvent == AIEVENT_FENCE || AISquad_nEvent == AIEVENT_LADDER || AISquad_nEvent == AIEVENT_EXPLOSION || AISquad_nEvent == AIEVENT_SEENSOMETHING)
+					{
+						AISquad_PlaySoundAtReceiversPos(AIVoice_WhatsThat);
+						AISquad_ReceiverLookAtEvent();
+					}
+					else
+					{
+						if(AISquad_nEvent == AIEVENT_DANGERSTATETIMEOUT)
+						{
+							AISquad_SwitchState(AISquadState_Idle);
+						}
+						else
+						{
+							if(AISquad_nEvent == AIEVENT_ENEMYDETECTION || AISquad_nEvent == AIEVENT_ENEMYDETECTION_NO_LOF)
+							{
+								AISquad_SwitchState(AISquadState_HoldArea, AIVoice_HoldArea);
+								AISquad_TriggerAlarm();
+							}
+							else
+							{
+								if(AISquad_nEvent == AIEVENT_FRIENDLYDETECTION || AISquad_nEvent == AIEVENT_FRIENDLY_DYING || AISquad_nEvent == AIEVENT_DEATH_CRY)
+								{
+									AISquad_PlaySoundAtReceiversPos(AIVoice_RaiseAlarm);
+									AISquad_TriggerAlarm();
+								}
+
+							}
+
+						}
+
+					}
+				}
+
+			}
+
+		}
+	}
+	else
+	{
+		if(AISquad_GetSquadType() == AIType_OnVehicle)
+		{
+			if(!AISquad_ReceiverHasTarget())
+			{
+				if(AISquad_nEvent == AIEVENT_GUNSHOT || AISquad_nEvent == AIEVENT_TAKINGDAMAGE || AISquad_nEvent == AIEVENT_DEATH_CRY || AISquad_nEvent == AIEVENT_FRIENDLY_DYING || AISquad_nEvent == AIEVENT_FRIENDLY_GUNSHOT || AISquad_nEvent == AIEVENT_EXPLOSION)
+				{
+					AISquad_ReceiverLookAtEvent();
+				}
+			}
+		}
+
+	}
+
+}

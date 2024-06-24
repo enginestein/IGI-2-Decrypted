@@ -1,0 +1,97 @@
+HumanAI_nEvent = AIFunction_GetCurrentEventType();
+if(HumanAI_nEvent == AIEVENT_SQUADCOMBATIDLE)
+{
+	AIAction_CombatIdle(AIACTIONFLAG_NONE);
+}
+else
+{
+	if(HumanAI_nEvent == AIEVENT_IDLE)
+	{
+		AIAction_Idle(AIACTIONFLAG_NONE);
+		AIFunction_PassEventOnToSquad();
+	}
+	else
+	{
+		if(HumanAI_nEvent == AIEVENT_CREATE)
+		{
+			AIFunction_SetEventPriority(AIEVENT_DEAD);
+			AIFunction_SetEventPriority(AIEVENT_DELETE);
+			AIFunction_SetEventPriority(AIEVENT_PATROLCOMMANDPROCESSED);
+			AIFunction_SetEventPriority(AIEVENT_DANGERSTATETIMEOUT);
+			AIFunction_SetEventPriority(AIEVENT_ALARMOFF);
+			AIFunction_SetEventPriority(AIEVENT_ALARMON);
+			AIFunction_SetEventPriority(AIEVENT_FLASHBANG);
+			AIFunction_SetEventPriority(AIEVENT_GRENADETHROWN);
+			AIFunction_SetEventPriority(AIEVENT_GRENADELAND);
+			AIFunction_SetEventPriority(AIEVENT_GRENADESHOUT);
+			AIFunction_SetEventPriority(AIEVENT_ENEMYDETECTION);
+			AIFunction_SetEventPriority(AIEVENT_ENEMYDETECTION_NO_LOF);
+			AIFunction_SetEventPriority(AIEVENT_TAKINGDAMAGE);
+			AIFunction_SetEventPriority(AIEVENT_GUNSHOT);
+			AIFunction_SetEventPriority(AIEVENT_VISUAL_GUNSHOT);
+			AIFunction_SetEventPriority(AIEVENT_FRIENDLY_DAMAGE_SEEN);
+			AIFunction_SetEventPriority(AIEVENT_ALERT);
+			AIFunction_SetEventPriority(AIEVENT_ALERT_RESPONSE);
+			AIFunction_SetEventPriority(AIEVENT_ANIMATION);
+			AIFunction_SetEventPriority(AIEVENT_FRIENDLY_DYING);
+			AIFunction_SetEventPriority(AIEVENT_FRIENDLYDETECTION);
+			AIFunction_SetEventPriority(AIEVENT_GUNSHOTMISS);
+			AIFunction_SetEventPriority(AIEVENT_BULLETIMPACT);
+			AIFunction_SetEventPriority(AIEVENT_WALK);
+			AIFunction_SetEventPriority(AIEVENT_DOOR);
+			AIFunction_SetEventPriority(AIEVENT_LADDER);
+			AIFunction_SetEventPriority(AIEVENT_FENCE);
+			AIFunction_SetEventPriority(AIEVENT_EXPLOSION);
+			AIFunction_SetEventPriority(AIEVENT_BACKUP_REQUEST);
+			AIFunction_SetEventPriority(AIEVENT_DESTROYED_CAMERA);
+			AIFunction_SetEventPriority(AIEVENT_DEATH_CRY);
+			AIFunction_SetEventPriority(AIEVENT_WOUNDED_CRY);
+			AIFunction_SetEventPriority(AIEVENT_SEENSOMETHING);
+			AIFunction_SetEventPriority(AIEVENT_GROUNDIMPACT);
+			AIFunction_SetEventPriority(AIEVENT_HANDLEWEAPON);
+			AIFunction_SetEventPriority(AIEVENT_LOSTSIGHTOFENEMY);
+			AIFunction_SetEventPriority(AIEVENT_INQUIRETIMEOUT);
+			AIFunction_SetEventPriority(AIEVENT_DONELOOKING);
+			AIFunction_SetEventPriority(AIEVENT_SEARCHOVER);
+			AIFunction_SetEventPriority(AIEVENT_CAMERAALARMUPDATE);
+			AIFunction_SetEventPriority(AIEVENT_REACTTOSUSPICION);
+			AIFunction_SetEventPriority(AIEVENT_SQUADCOMMAND);
+			AIFunction_SetEventPriority(AIEVENT_SQUADCOMBATIDLE);
+			AIFunction_SetEventPriority(AIEVENT_FRIENDLY_GUNSHOT);
+			AIFunction_SetEventPriority(AIEVENT_DISTRESSCALL);
+			AIFunction_SetEventPriority(AIEVENT_IDLE);
+			AIFunction_SetEventPriority(AIEVENT_CREATE);
+			AIFunction_UseIdleView();
+		}
+		else
+		{
+			if(HumanAI_nEvent == AIEVENT_FLASHBANG)
+			{
+				AIAction_Stunned(2, AIACTIONFLAG_NONE);
+			}
+			else
+			{
+				if(HumanAI_nEvent == AIEVENT_GRENADETHROWN || HumanAI_nEvent == AIEVENT_GRENADESHOUT)
+				{
+					AIAction_RunPanicking(10, AIACTIONFLAG_NONE);
+				}
+				else
+				{
+					if(!AIFunction_HasTarget() && (HumanAI_nEvent == AIEVENT_FRIENDLYDETECTION || HumanAI_nEvent == AIEVENT_FRIENDLY_DYING || HumanAI_nEvent == AIEVENT_DEATH_CRY || HumanAI_nEvent == AIEVENT_WOUNDED_CRY))
+					{
+						AIAction_DelayedEventPassOn(AIACTIONFLAG_NONE);
+					}
+					else
+					{
+						AIFunction_PassEventOnToSquad();
+					}
+
+				}
+
+			}
+
+		}
+
+	}
+
+}
